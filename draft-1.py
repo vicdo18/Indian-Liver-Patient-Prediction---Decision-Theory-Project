@@ -25,12 +25,21 @@ names=['age','sex','tot_bilirubin','direct_bilirubin','tot_proteins','albumin','
 
 print(df)
 df.info()       # data in column 9 (Albumin_and_Globulin_Ratio) is missing 578/583
-#df[df['alkphos'].isnull()]  # 4 rows with missing data (?)  idk how to refer to column 9 
+df[df['alkphos'].isnull()]  # 4 rows with missing data (?)  idk how to refer to column 9 
+#df['ag_ratio'].fillna(df['ag_ratio'].mean(), inplace=True)  # fill missing data with mean
+print('No of missing values after filling missing values with mean')
+print(df)
+print(df.isnull().sum())  
 
+#show position ofrows with missing data 
+print("***************************")
+print(df[df['alkphos'].isnull()]) 
 
 # drop rows with missing data
-#df = df.dropna()      steile mail ----> https://www.theanalysisfactor.com/seven-ways-to-make-up-data-common-methods-to-imputing-missing-data/
-
+# df = df.dropna()     # steile mail ----> https://www.theanalysisfactor.com/seven-ways-to-make-up-data-common-methods-to-imputing-missing-data/
+# print('After dropping rows with missing data')
+# print(df.drop('class', axis=1).corrwith(df['class']))
+# df.info()
 
 # print(df.columns)
 # print('*'*50)
@@ -72,22 +81,26 @@ def correlation_heatmap(df):
     plt.title('Pearson Correlation of Features', y=1.05, size=15)
 
 correlation_heatmap(df)
-plt.show()
+#plt.show()
 
 # Splitting the data into train and test
 X = df.iloc[:, :10]   # Features
 y = df['class']       # target variable
 
-from sklearn.preprocessing import MinMaxScaler 
-scaler=MinMaxScaler(feature_range=(-1,1))
-scaled_values=scaler.fit_transform(X)
-X.loc['age','tot_bilirubin','direct_bilirubin','tot_proteins','albumin','ag_ratio','sgpt','sgot','alkphos']=scaled_values # ????? den kanei normalization !!  lathos parameter
-# print("After scaling the data")
+# from sklearn.preprocessing import MinMaxScaler 
+# scaler=MinMaxScaler(feature_range=(-1,1))
+# scaled_values=scaler.fit_transform(X)
+# X.loc['age','tot_bilirubin','direct_bilirubin','tot_proteins','albumin','ag_ratio','sgpt','sgot','alkphos']=scaled_values # ????? den kanei normalization !!  lathos parameter
+# # print("After scaling the data")
+# # print(df)
+
+# # 2os tropos normalization
+# df.apply(lambda x: -1 + (2*((x - x.min()) / (x.max() - x.min()))))
 # print(df)
 
 X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2, random_state=42)
 
-print(X_train.shape)
-print(X_test.shape)
-print(y_train.shape)
-print(y_test.shape)
+# print(X_train.shape)
+# print(X_test.shape)
+# print(y_train.shape)
+# print(y_test.shape)
