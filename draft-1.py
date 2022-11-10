@@ -11,7 +11,7 @@ import seaborn as sns
 
 from sklearn import preprocessing
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder   # for sex 
-le = LabelEncoder()
+
 from sklearn import model_selection
 from sklearn import metrics
 
@@ -20,26 +20,18 @@ from sklearn.model_selection import cross_val_score
 #importing 
 
 df = pd.read_csv('C:/Users/vixky/Desktop/Project Θεωρια Αποφάσεων/Indian Liver Patient Dataset (ILPD).csv',sep=',',
-names=['age','sex','tot_bilirubin','direct_bilirubin','tot_proteins','albumin','ag_ratio','sgpt','sgot','alkphos','class']
+names=['Age','Gender','Tb','Db','Alkphos','Sgpt','Sgot','Tp','Alb','Ag_ratio','Class']
 )
 
-print(df)
-df.info()       # data in column 9 (Albumin_and_Globulin_Ratio) is missing 578/583
-df[df['alkphos'].isnull()]  # 4 rows with missing data (?)  idk how to refer to column 9 
-#df['ag_ratio'].fillna(df['ag_ratio'].mean(), inplace=True)  # fill missing data with mean
-print('No of missing values after filling missing values with mean')
-print(df)
-print(df.isnull().sum())  
+#print(df)
+#df.info()       # data in column 9 (alkphos) is missing 578/583
 
-#show position ofrows with missing data 
-print("***************************")
-print(df[df['alkphos'].isnull()]) 
+#print(df[df['Ag_ratio'].isnull()])                            # 4 rows with missing data in alkphos column
+print('Mean of Ag_ratio before filling:', df['Ag_ratio'].mean())   # check mean before filling
+df['Ag_ratio'].fillna(df['Ag_ratio'].mean(), inplace=True)  # fill missing data with mean
 
-# drop rows with missing data
-# df = df.dropna()     # steile mail ----> https://www.theanalysisfactor.com/seven-ways-to-make-up-data-common-methods-to-imputing-missing-data/
-# print('After dropping rows with missing data')
-# print(df.drop('class', axis=1).corrwith(df['class']))
-# df.info()
+# print('********')
+# print('How many missing values?',df['Ag_ratio'].isnull().sum())       # 0 missing values after filling with mean
 
 # print(df.columns)
 # print('*'*50)
@@ -49,54 +41,58 @@ print(df[df['alkphos'].isnull()])
 #     print('*'*50)
 
 
-# Sex column into 0 and 1
+# Gender column into 0 and 1
 
-label = le.fit_transform(df['sex'])
-df.drop("sex", axis=1, inplace=True) #remove column from df 
-df['sex'] = label                    #add column to df , pws na to valw sthn thesh 2 ?
+le = LabelEncoder()
+label = le.fit_transform(df['Gender'])
+df['Gender'] = label                    #add column to df , pws na to valw sthn thesh 2 ?
+# with pd.option_context('display.max_rows', 583, 'display.max_columns', 11):          # print all rows and columns
+#     print(df)
 print(df)
 
 # check for imbalanced data
 
-print('No. of patients with liver disease :',len(df[df['class']==1]))
-print('No. of patients without liver disease :',len(df[df['class']==2]))
+print('No. of patients with liver disease :',len(df[df['Class']==1]))
+print('No. of patients without liver disease :',len(df[df['Class']==2]))
 
 # correlation heatmap
 
-def correlation_heatmap(df):
-    _ , ax = plt.subplots(figsize =(12, 12))
-    colormap = sns.diverging_palette(154, 10, as_cmap = True)
+# def correlation_heatmap(df):
+#     _ , ax = plt.subplots(figsize =(12, 12))
+#     colormap = sns.diverging_palette(154, 10, as_cmap = True)
     
-    _ = sns.heatmap(
-        df.corr(), 
-        cmap = colormap,
-        square=True, 
-        cbar_kws={'shrink':.9 }, 
-        ax=ax,
-        annot=True, 
-        linewidths=0.1,vmax=1.0, linecolor='black',
-        annot_kws={'fontsize':11 }
-    )
+#     _ = sns.heatmap(
+#         df.corr(), 
+#         cmap = colormap,
+#         square=True, 
+#         cbar_kws={'shrink':.9 }, 
+#         ax=ax,
+#         annot=True, 
+#         linewidths=0.1,vmax=1.0, linecolor='black',
+#         annot_kws={'fontsize':11 }
+#     )
     
-    plt.title('Pearson Correlation of Features', y=1.05, size=15)
+#     plt.title('Pearson Correlation of Features', y=1.05, size=15)
 
-correlation_heatmap(df)
-#plt.show()
+# correlation_heatmap(df)
+# #plt.show()
 
 # Splitting the data into train and test
-X = df.iloc[:, :10]   # Features
-y = df['class']       # target variable
+X = df.iloc[:, :10]   # Features ????
+y = df['Class']       # target variable
 
-# from sklearn.preprocessing import MinMaxScaler 
-# scaler=MinMaxScaler(feature_range=(-1,1))
-# scaled_values=scaler.fit_transform(X)
-# X.loc['age','tot_bilirubin','direct_bilirubin','tot_proteins','albumin','ag_ratio','sgpt','sgot','alkphos']=scaled_values # ????? den kanei normalization !!  lathos parameter
-# # print("After scaling the data")
-# # print(df)
+from sklearn.preprocessing import MinMaxScaler 
 
-# # 2os tropos normalization
-# df.apply(lambda x: -1 + (2*((x - x.min()) / (x.max() - x.min()))))
-# print(df)
+scaler=MinMaxScaler(feature_range=(-1,1))
+scaled_values=df.drop(['Gender','Class'],axis=1)
+
+scaled_values=scaler.fit_transform(scaled_values)
+scaled_values=pd.DataFrame(scaled_values,columns=['Age','Tb','Db','Alkphos','Sgpt','Sgot','Tp','Alb','Ag_ratio'])
+
+scaled_values.insert(1,'Gender',df['Gender'])
+scaled_values['Class']=df['Class']
+print("After scaling the data:")
+print(scaled_values)
 
 X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2, random_state=42)
 
