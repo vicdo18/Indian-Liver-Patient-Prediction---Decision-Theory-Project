@@ -43,8 +43,8 @@ df['Ag_ratio'].fillna(df['Ag_ratio'].mean(), inplace=True)  # fill missing data 
 
 # Gender column into 0 and 1
 
-le = LabelEncoder()
-label = le.fit_transform(df['Gender'])
+le = LabelEncoder()        #sos male->0 female->1
+label = 1-le.fit_transform(df['Gender'])      #fixed (1-le.. to invert values)
 df['Gender'] = label                    #add column to df , pws na to valw sthn thesh 2 ?
 # with pd.option_context('display.max_rows', 583, 'display.max_columns', 11):          # print all rows and columns
 #     print(df)
@@ -54,28 +54,6 @@ print(df)
 
 print('No. of patients with liver disease :',len(df[df['Class']==1]))
 print('No. of patients without liver disease :',len(df[df['Class']==2]))
-
-# correlation heatmap
-
-# def correlation_heatmap(df):
-#     _ , ax = plt.subplots(figsize =(12, 12))
-#     colormap = sns.diverging_palette(154, 10, as_cmap = True)
-    
-#     _ = sns.heatmap(
-#         df.corr(), 
-#         cmap = colormap,
-#         square=True, 
-#         cbar_kws={'shrink':.9 }, 
-#         ax=ax,
-#         annot=True, 
-#         linewidths=0.1,vmax=1.0, linecolor='black',
-#         annot_kws={'fontsize':11 }
-#     )
-    
-#     plt.title('Pearson Correlation of Features', y=1.05, size=15)
-
-# correlation_heatmap(df)
-# #plt.show()
 
 # Splitting the data into train and test
 X = df.iloc[:, :10]   # Features ????
