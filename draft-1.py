@@ -17,7 +17,8 @@ from sklearn import metrics
 
 from sklearn.model_selection import cross_val_score
 
-#importing 
+# Importing the data from the csv file.
+
 
 df = pd.read_csv('C:/Users/vixky/Desktop/Project Θεωρια Αποφάσεων/Indian Liver Patient Dataset (ILPD).csv',sep=',',
 names=['Age','Gender','Tb','Db','Alkphos','Sgpt','Sgot','Tp','Alb','Ag_ratio','Class']
@@ -55,11 +56,15 @@ print(df)
 print('No. of patients with liver disease :',len(df[df['Class']==1]))
 print('No. of patients without liver disease :',len(df[df['Class']==2]))
 
-# Splitting the data into train and test
-X = df.iloc[:, :10]   # Features ????
+# sns.countplot(x='Class',data=df,palette='hls')
+# plt.show()
+
+X = df.iloc[:,0:10]   # Features (all columns except Class and gender)
 y = df['Class']       # target variable
 
 from sklearn.preprocessing import MinMaxScaler 
+
+#Normalization [-1,1]
 
 scaler=MinMaxScaler(feature_range=(-1,1))
 scaled_values=df.drop(['Gender','Class'],axis=1)
@@ -72,9 +77,39 @@ scaled_values['Class']=df['Class']
 print("After scaling the data:")
 print(scaled_values)
 
+# Splitting the data into train and test sets
+
 X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2, random_state=42)
 
 # print(X_train.shape)
 # print(X_test.shape)
 # print(y_train.shape)
 # print(y_test.shape)
+
+# Naive Bayes
+
+from sklearn.naive_bayes import GaussianNB
+nb = GaussianNB()
+nb.fit(X_train, y_train)
+y_pred = nb.predict(X_test)
+
+score = nb.score(X_test, y_test)
+print("Overall score of the model is - ",score)
+print("Model Report Card - ")
+print(metrics.classification_report(y_test, y_pred, digits=3))
+print("Accuracy score - ", metrics.accuracy_score(y_test,y_pred))
+
+
+# Cross validate model with 5fold stratified cross val randomly splits the training set into (5_splits) 5 distinct subsets called folds, 
+# then it trains and evaluates the models 5 times, picking a different fold for evaluation every time and 
+# training on the other 4 folds.
+
+
+cvscore = cross_val_score(nb, X, y, cv=5)
+print("Cross-validated scores:", cvscore)
+#print('Accuracy: %0.2f (+/- %0.2f)' % (cvscore.mean(), cvscore.std() * 2))
+
+
+
+# Geometric_Mean = sqrt (Sensitivity * Specificity)
+# print("Geometric Mean - ", metrics.geometric_mean_score(y_test, y_pred))
