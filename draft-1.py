@@ -31,7 +31,7 @@ names=['Age','Gender','Tb','Db','Alkphos','Sgpt','Sgot','Tp','Alb','Ag_ratio','C
 print('Mean of Ag_ratio before filling:', df['Ag_ratio'].mean())   # check mean before filling
 df['Ag_ratio'].fillna(df['Ag_ratio'].mean(), inplace=True)  # fill missing data with mean
 
-# print('********')
+
 # print('How many missing values?',df['Ag_ratio'].isnull().sum())       # 0 missing values after filling with mean
 
 # print(df.columns)
@@ -46,10 +46,10 @@ df['Ag_ratio'].fillna(df['Ag_ratio'].mean(), inplace=True)  # fill missing data 
 
 le = LabelEncoder()        #sos male->0 female->1
 label = 1-le.fit_transform(df['Gender'])      #fixed (1-le.. to invert values)
-df['Gender'] = label                    #add column to df , pws na to valw sthn thesh 2 ?
+df['Gender'] = label                    # add new column with label encoded values
 # with pd.option_context('display.max_rows', 583, 'display.max_columns', 11):          # print all rows and columns
 #     print(df)
-print(df)
+#print(df)
 
 # check for imbalanced data
 
@@ -86,6 +86,13 @@ X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_s
 # print(y_train.shape)
 # print(y_test.shape)
 
+
+#heatmap 
+
+# plt.figure(figsize=(10,10))
+# sns.heatmap(df.corr(),annot=True,fmt='.1f')
+# plt.show()
+
 # Naive Bayes
 
 from sklearn.naive_bayes import GaussianNB
@@ -100,6 +107,8 @@ print(metrics.classification_report(y_test, y_pred, digits=3))
 print("Accuracy score - ", metrics.accuracy_score(y_test,y_pred))
 
 
+# 3o erwtima
+
 # Cross validate model with 5fold stratified cross val randomly splits the training set into (5_splits) 5 distinct subsets called folds, 
 # then it trains and evaluates the models 5 times, picking a different fold for evaluation every time and 
 # training on the other 4 folds.
@@ -109,7 +118,41 @@ cvscore = cross_val_score(nb, X, y, cv=5)
 print("Cross-validated scores:", cvscore)
 #print('Accuracy: %0.2f (+/- %0.2f)' % (cvscore.mean(), cvscore.std() * 2))
 
+#accuracy after cross validation
+print("Accuracy after cross validation: %0.2f (+/- %0.2f)" % (cvscore.mean(), cvscore.std() * 2))
+
+# geometric mean metric
+
+from sklearn.metrics import make_scorer
+from sklearn.model_selection import cross_validate
+
+def geometric_mean(y_true, y_pred):
+    return metrics.fbeta_score(y_true, y_pred, beta=1, average='weighted')
 
 
-# Geometric_Mean = sqrt (Sensitivity * Specificity)
-# print("Geometric Mean - ", metrics.geometric_mean_score(y_test, y_pred))
+scoring = {'acc': 'accuracy', 
+              'prec_macro': 'precision_macro',
+                'rec_micro': 'recall_macro',
+                'f1_weighted': make_scorer(geometric_mean)}
+
+
+#print sensitivity and specificity
+
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+#plot confusion matrix 
+
+from sklearn.metrics import plot_confusion_matrix
+plot_confusion_matrix(nb, X_test, y_test)
+plt.show()
+
+
+
+print('The geometric mean is {}'.format(geometric_mean(
+    y_test,
+    y_pred)))
