@@ -79,7 +79,7 @@ print(scaled_values)
 
 # Splitting the data into train and test sets
 
-X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.25, random_state=42)
 
 # print(X_train.shape)
 # print(X_test.shape)
@@ -118,6 +118,14 @@ cvscore = cross_val_score(nb, X, y, cv=5)
 print("Cross-validated scores:", cvscore)
 #print('Accuracy: %0.2f (+/- %0.2f)' % (cvscore.mean(), cvscore.std() * 2))
 
+#plot for the 5 folds
+
+plt.plot(cvscore)
+plt.title('5-fold cross validation')
+plt.xlabel('Fold')
+plt.ylabel('Accuracy')
+plt.show()
+
 #accuracy after cross validation
 print("Accuracy after cross validation: %0.2f (+/- %0.2f)" % (cvscore.mean(), cvscore.std() * 2))
 
@@ -150,6 +158,7 @@ print(confusion_matrix(y_test, y_pred))
 from sklearn.metrics import plot_confusion_matrix
 plot_confusion_matrix(nb, X_test, y_test)
 plt.show()
+
 
 
 
