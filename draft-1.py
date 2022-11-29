@@ -213,7 +213,7 @@ from sklearn.metrics import accuracy_score
 
 # SVM RBF training with kfold 
 
-svm = SVC(kernel='rbf',  C=1.0 , gamma='auto')
+svm = SVC(kernel='rbf',  C=1.0 , gamma='scale')
 svm.fit(X_train, y_train)
 y_pred = svm.predict(X_test)
 
@@ -228,7 +228,7 @@ print("Accuracy score - ", metrics.accuracy_score(y_test,y_pred))
 plot_confusion_matrix(svm, X_test, y_test)
 plt.show()
 
-#geometric mean for SVM RBF
+#geometric mean for SVM RBF 
 
 
 def geometric_mean(y_true, y_pred):
@@ -237,6 +237,10 @@ def geometric_mean(y_true, y_pred):
 print("The geometric mean  (SVC) is {}".format(geometric_mean(    
     y_test,
     y_pred)))
+
+#print gamma 
+
+print("Gamma is - ", svm.gamma)
 
 
 
