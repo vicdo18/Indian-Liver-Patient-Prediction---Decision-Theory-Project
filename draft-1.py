@@ -10,7 +10,7 @@ import seaborn as sns
 # preprocessing
 
 from sklearn import preprocessing
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder   # for sex 
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder   # for gender 
 
 from sklearn import model_selection
 from sklearn import metrics
@@ -79,7 +79,7 @@ print(scaled_values)
 
 # Splitting the data into train and test sets
 
-X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.25, random_state=42)
+X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size=0.2, random_state=42)
 
 # print(X_train.shape)
 # print(X_test.shape)
@@ -120,7 +120,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.metrics import recall_score , precision_score , accuracy_score , f1_score , roc_auc_score , confusion_matrix
 
 vc_results = cross_validate(nb, X_train, y_train, cv=5, scoring=('accuracy', 'precision', 'recall', 'f1', 'roc_auc'))
-print("!!Accuracy: %0.2f (+/- %0.2f)" % (vc_results['test_accuracy'].mean(), vc_results['test_accuracy'].std() * 2))
+print("!!Accuracy after validation: %0.2f (+/- %0.2f)" % (vc_results['test_accuracy'].mean(), vc_results['test_accuracy'].std() * 2))
 
 #plot kfold progress
 
@@ -145,10 +145,10 @@ plt.show()
 # results = model_selection.cross_val_score(nb, X_train, y_train, cv=kfold)
 # print(" !!!Accuracy: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
 
-# # plt results from kfold
+# plt results from kfold
 
 # plt.figure(figsize=(10,10))
-# plt.plot(results)
+# plt.plot(vc_results)
 # plt.show()
 
 
@@ -203,3 +203,43 @@ plt.show()
 # print('The geometric mean is {}'.format(geometric_mean(    # almost 51% accurate
 #     y_test,
 #     y_pred)))
+
+
+# erwthma 4 
+# SVM with Radial Basis Function (RBF) kernel 
+
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# SVM RBF training with kfold 
+
+svm = SVC(kernel='rbf',  C=1.0 , gamma='auto')
+svm.fit(X_train, y_train)
+y_pred = svm.predict(X_test)
+
+score = svm.score(X_test, y_test)
+print("Overall score of the model is - ",score)
+print("Model Report Card - ")
+print(metrics.classification_report(y_test, y_pred, digits=3, zero_division=0)) #zero division warning - fixed
+print("Accuracy score - ", metrics.accuracy_score(y_test,y_pred))
+
+#plot confusion matrix for SVM RBF
+
+plot_confusion_matrix(svm, X_test, y_test)
+plt.show()
+
+#geometric mean for SVM RBF
+
+
+def geometric_mean(y_true, y_pred):
+    return metrics.fbeta_score(y_true, y_pred, beta=1, average='weighted')
+
+print("The geometric mean  (SVC) is {}".format(geometric_mean(    
+    y_test,
+    y_pred)))
+
+
+
+
+
+
